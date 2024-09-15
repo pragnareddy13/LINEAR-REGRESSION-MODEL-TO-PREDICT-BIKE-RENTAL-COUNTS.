@@ -1,0 +1,21 @@
+library(caret) # for train-test split
+library(dplyr) # for data manipulation
+# load the dataset
+bike_rentals <- read.csv("bike_rentals.csv")
+# prepare the data for modeling
+bike_rentals <- bike_rentals %>% select(-instant, -dteday, -casual, -registered) # remove irrelevant columns
+trainIndex <- createDataPartition(bike_rentals$count, p = .8, list = FALSE)
+train <- bike_rentals[trainIndex,] # training set
+test <- bike_rentals[-trainIndex,] # testing set
+# create the linear regression model
+model <- lm(count ~ ., data = train)
+# train the model on the training set
+summary(model)
+# make predictions on the test set
+predictions <- predict(model, newdata = test)
+# calculate the mean squared error and R-squared for the predictions
+mse <- mean((test$count - predictions)^2)
+r_squared <- summary(model)$r.squared
+# print the performance metrics
+cat("Mean Squared Error: ", round(mse, 2), "\n")
+cat("R-squared: ", round(r_squared, 2), "\n")
